@@ -1,0 +1,76 @@
+
+
+
+
+{% comment %} <script>
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function showPosition(position) {
+        var latitude = position.coords.latitude;
+        var longitude = position.coords.longitude;
+        // Send location data to the Django backend (using fetch)
+        fetch('/save_location/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude
+            })
+        }).then(response => response.json())
+          .then(data => {
+              alert("Location saved successfully!");
+          })
+          .catch(error => {
+              alert("Error saving location.");
+          });
+    }
+</script> {% endcomment %}
+
+
+
+<button onclick="getLocation()">Get Location</button>
+
+
+<form method="get">
+    <label for="city">Select a City:</label>
+    <select name="city" id="city" onchange="this.form.submit()">
+        <option value="">-- All Cities --</option>
+        {% for city in cities %}
+            <option value="{{ city.id }}" {% if city.id == selected_city %}selected{% endif %}>{{ city.name }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<h2>List of Theatres</h2>
+
+{% if theatres %}
+    <ul>
+        {% for theatre in theatres %}
+            <li>{{ theatre.name }} - {{ theatre.address }} ({{ theatre.city.name }})</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No theatres found for the selected city.</p>
+{% endif %}
+
+
+
+<h1>Nearest Theatre</h1>
+
+{% if nearest_theatre %}
+    <p>The nearest theatre to your location is:</p>
+    <h2>{{ nearest_theatre.name }}</h2>
+    <p>Address: {{ nearest_theatre.address }}</p>
+    <p>Distance: {{ distance }} km</p>
+{% else %}
+    <p>No theatres found.</p>
+{% endif %}
